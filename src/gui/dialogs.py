@@ -3,7 +3,7 @@ import anki
 import aqt
 from aqt.studydeck import StudyDeck
 from aqt.utils import shortcut, showInfo
-from PyQt5 import Qt, QtCore, QtGui, QtWidgets
+from aqt.qt import *
 import os
 
 from . import ui_options, ui_dicts_setting, ui_dict_chooser
@@ -15,9 +15,9 @@ from ..constants import VERSION, Endpoint, Template
 from ..utils.misc import all_note_types
 
 
-class DictChooser(QtWidgets.QWidget):
+class DictChooser(QWidget):
     def __init__(self, parent=None):
-        QtWidgets.QWidget.__init__(self, parent)
+        QWidget.__init__(self, parent)
         self.ui = ui_dict_chooser.Ui_Form()
         self.ui.setupUi(self)
         self.ui.comboDicts.currentIndexChanged.connect(self.fill_comboFields)
@@ -101,12 +101,12 @@ class DictChooser(QtWidgets.QWidget):
             self.ui.comboDictFields.setEnabled(False)
 
 
-class OptionsDlg(QtWidgets.QDialog):
+class OptionsDlg(QDialog):
     def __init__(self, parent):
-        QtWidgets.QDialog.__init__(self, parent)
+        QDialog.__init__(self, parent)
         self.ui = ui_options.Ui_Dialog()
         self.ui.setupUi(self)
-        self.btn_group = QtWidgets.QButtonGroup()
+        self.btn_group = QButtonGroup()
         # init from saved data
         self.current_model = None
         if not config.last_model_id:
@@ -139,7 +139,7 @@ class OptionsDlg(QtWidgets.QDialog):
         widget = DictChooser()
         widget.update(data)
         self.btn_group.addButton(widget.btn_check)
-        item = QtWidgets.QListWidgetItem()
+        item = QListWidgetItem()
         item.setSizeHint(widget.sizeHint())  # important
         self.ui.lwDicts.insertItem(self.ui.lwDicts.count(), item)
         self.ui.lwDicts.setItemWidget(item, widget)
@@ -153,7 +153,7 @@ class OptionsDlg(QtWidgets.QDialog):
         dict_dlg = DictSettingDlg(self)
         dict_dlg.activateWindow()
         dict_dlg.raise_()
-        if dict_dlg.exec_() == QtWidgets.QDialog.Accepted:
+        if dict_dlg.exec_() == QDialog.Accepted:
             # update local services
             service_manager.update_services()
             for chooser in self.ui.lwDicts.findChildren(DictChooser):
@@ -161,7 +161,7 @@ class OptionsDlg(QtWidgets.QDialog):
 
     def show_models(self):
         """show model selection dialog which is created by anki."""
-        edit = QtWidgets.QPushButton(
+        edit = QPushButton(
             anki.lang._("Manage"), clicked=lambda: aqt.models.Models(aqt.mw, self)
         )
         ret = StudyDeck(
@@ -185,7 +185,7 @@ class OptionsDlg(QtWidgets.QDialog):
 
     def show_about(self):
         """show About dialog"""
-        QtWidgets.QMessageBox.about(self, _("ABOUT"), Template.tmpl_about)
+        QMessageBox.about(self, _("ABOUT"), Template.tmpl_about)
 
     def save(self):
         self.close()
@@ -205,9 +205,9 @@ class OptionsDlg(QtWidgets.QDialog):
         config.update(data)
 
 
-class DictSettingDlg(QtWidgets.QDialog):
+class DictSettingDlg(QDialog):
     def __init__(self, parent):
-        QtWidgets.QDialog.__init__(self, parent)
+        QDialog.__init__(self, parent)
         self.ui = ui_dicts_setting.Ui_Dialog()
         self.ui.setupUi(self)
         self.ui.listWidgetFolders.addItems(config.dirs)
@@ -218,12 +218,11 @@ class DictSettingDlg(QtWidgets.QDialog):
         self._dirs = []
 
     def add_folder(self):
-        dir_ = QtWidgets.QFileDialog.getExistingDirectory(
+        dir_ = QFileDialog.getExistingDirectory(
             self,
             caption="Select Folder",
             directory="",
-            options=QtWidgets.QFileDialog.ShowDirsOnly
-            | QtWidgets.QFileDialog.DontResolveSymlinks,
+            options=QFileDialog.ShowDirsOnly | QFileDialog.DontResolveSymlinks,
         )
         if dir_:
             self.ui.listWidgetFolders.addItem(dir_)
