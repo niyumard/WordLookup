@@ -42,6 +42,12 @@ def ignore_exception(func):
     return wrap
 
 
+# Replica of depricated aqt.mw.col.models.all_names() gets aqt.mw.col.models and spits out
+# the list of note types
+def all_note_types(model_object) -> list[str]:
+    return [n.name for n in model_object.all_names_and_ids()]
+
+
 def get_model_byId(models, id):
     for m in list(models.all()):
         # showInfo(str(m['id']) + ', ' + m['name'])

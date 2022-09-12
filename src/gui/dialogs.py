@@ -12,6 +12,7 @@ from ..service import service_manager
 from ..context import config
 from ..utils import MapDict, get_icon, get_model_byId, get_ord_from_fldname
 from ..constants import VERSION, Endpoint, Template
+from ..utils.misc import all_note_types
 
 
 class DictChooser(QtWidgets.QWidget):
@@ -165,7 +166,7 @@ class OptionsDlg(QtWidgets.QDialog):
         )
         ret = StudyDeck(
             aqt.mw,
-            names=lambda: sorted(aqt.mw.col.models.allNames()),
+            names=lambda: sorted(all_note_types(aqt.mw.col.models)),
             accept=anki.lang._("Choose"),
             title=anki.lang._("Choose Note Type"),
             help="_notes",
@@ -176,7 +177,7 @@ class OptionsDlg(QtWidgets.QDialog):
         )
         if not ret.name:
             return
-        model = aqt.mw.col.models.byName(ret.name)
+        model = aqt.mw.col.models.by_name(ret.name)
         self.ui.btnModelChooser.setText("%s [%s]" % (_("CHOOSE_NOTE_TYPES"), ret.name))
         if model:
             self.build_mappings_layout(model)
