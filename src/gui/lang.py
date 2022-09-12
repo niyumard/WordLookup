@@ -116,7 +116,8 @@ trans = {
     "SETTINGS": {"zh_CN": "参数", "en": "Settings", "fr": "Paramètres"},
 }
 
-
+# This function will throw a deprication error, as gettext is not used in Anki anymore and Project Fluent is being used.
+# However currently there's no other way for addons to be translated so while it works I'll let it be.
 def _(key, lang=currentLang):
     if key not in trans:
         return key.lower().capitalize()
