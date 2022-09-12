@@ -107,17 +107,11 @@ trans = {
         "en": "New version:",
         "fr": "Nouvelle version:",
     },
-    "UPDATE": {"zh_CN": "更新", "en": "Update", "fr": "Mise à jour"},
-    "FORCE_UPDATE": {
-        "zh_CN": "强制更新字段",
-        "en": "Force update",
-        "fr": "Mise à jour forcée",
-    },
-    "SETTINGS": {"zh_CN": "参数", "en": "Settings", "fr": "Paramètres"},
 }
 
-# This function will throw a deprication error, as gettext is not used in Anki anymore and Project Fluent is being used.
-# However currently there's no other way for addons to be translated so while it works I'll let it be.
+# This function will throw "gettext _() is deprecated" and "_ global will break in the future; please see anki/lang.py" deprication
+# errors, as gettext is not used in Anki anymore and Project Fluent is being used. However currently there's no other way for addons
+# to be translated so as long as it works, I'll let it be.
 def _(key, lang=current_lang):
     if key not in trans:
         return key.lower().capitalize()

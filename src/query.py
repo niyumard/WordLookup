@@ -42,7 +42,7 @@ def inspect_note(note):
     return word: the word
     return maps: dicts map of current note
     """
-    maps = config.get_maps(note.model()["id"])
+    maps = config.get_maps(note.note_type()["id"])
     for i, m in enumerate(maps):
         if m.get("word_checked", False):
             word_ord = i
