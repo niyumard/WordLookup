@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-from anki.lang import currentLang
+from anki.lang import current_lang
 
 trans = {
     "CHECK_FILENAME_LABEL": {
@@ -118,7 +118,7 @@ trans = {
 
 # This function will throw a deprication error, as gettext is not used in Anki anymore and Project Fluent is being used.
 # However currently there's no other way for addons to be translated so while it works I'll let it be.
-def _(key, lang=currentLang):
+def _(key, lang=current_lang):
     if key not in trans:
         return key.lower().capitalize()
 
