@@ -154,12 +154,12 @@ def update_note_field(note, fld_index, fld_result):
     result, js, jsfile = fld_result.result, fld_result.js, fld_result.jsfile
     # js process: add to template of the note model
     add_to_tmpl(note, js=js, jsfile=jsfile)
-    # if not result:
-    #     return
-    if not config.force_update and not result:
+
+    if not result:
         return
     note.fields[fld_index] = result if result else ""
-    note.flush()
+    if note.id != 0:
+        note.flush()
 
 
 def promot_choose_css():
@@ -186,7 +186,7 @@ def add_to_tmpl(note, **kwargs):
         u'afmt': u'{{FrontSide}}\n\n<hr id=answer>\n\n{{Back}}\n\n{{12}}\n\n{{44}}\n\n', u'ord': 0, u'bqfmt': u''}]
     """
     # showInfo(str(kwargs))
-    afmt = note.model()["tmpls"][0]["afmt"]
+    afmt = note.note_type()["tmpls"][0]["afmt"]
     if kwargs:
         jsfile, js = kwargs.get("jsfile", None), kwargs.get("js", None)
         if js and js.strip():
@@ -202,7 +202,7 @@ def add_to_tmpl(note, **kwargs):
             copy_static_file(jsfile, new_jsfile)
             addings = '\r\n<script src="{}"></script>'.format(new_jsfile)
             afmt += addings
-        note.model()["tmpls"][0]["afmt"] = afmt
+        note.note_type()["tmpls"][0]["afmt"] = afmt
 
 
 class InvalidWordException(Exception):
