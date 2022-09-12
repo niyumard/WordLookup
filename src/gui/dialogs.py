@@ -169,7 +169,7 @@ class OptionsDlg(QDialog):
             names=lambda: sorted(all_note_types(aqt.mw.col.models)),
             accept=anki.lang._("Choose"),
             title=anki.lang._("Choose Note Type"),
-            help="_notes",
+            help="editing.html#adding-a-note-type",
             parent=self,
             buttons=[edit],
             cancel=True,
