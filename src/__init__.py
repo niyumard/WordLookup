@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-from anki.hooks import addHook
+from aqt import gui_hooks
 
 ############## other config here ##################
 # update all fields ignoring the original field content
@@ -40,4 +40,4 @@ def start_here():
     # prepare.set_shortcut(shortcut)
 
 
-addHook("profileLoaded", start_here)
+gui_hooks.profile_did_open.append(start_here)

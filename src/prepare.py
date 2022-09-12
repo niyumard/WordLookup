@@ -20,9 +20,9 @@
 
 import anki
 import aqt
-from aqt import mw
+from aqt import mw, gui_hooks
 from aqt.qt import *
-from anki.hooks import addHook, wrap
+from anki.hooks import wrap
 from aqt.addcards import AddCards
 from aqt.utils import showInfo, shortcut
 from .query import (
@@ -81,7 +81,7 @@ def setup_browser_menu():
         menu.addAction(action_queryselected)
         menu.addAction(action_options)
 
-    anki.hooks.addHook("browser.setupMenus", on_setup_menus)
+    gui_hooks.browser_menus_did_init.append(on_setup_menus)
 
 
 def setup_context_menu():
@@ -103,7 +103,8 @@ def setup_context_menu():
         needs_separator = True
         # menu.addMenu(submenu)
 
-    anki.hooks.addHook("EditorWebView.contextMenuEvent", on_setup_menus)
+    gui_hooks.editor_will_show_context_menu.append(on_setup_menus)
+
     # shortcuts = [(my_shortcut, query), ]
     # anki.hooks.addHook('setupEditorShortcuts', shortcuts)
 
