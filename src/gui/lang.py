@@ -107,6 +107,12 @@ trans = {
         "en": "New version:",
         "fr": "Nouvelle version:",
     },
+    "QUERY": {
+        "en": "Query",
+    },
+    "QUERY_SHORTCUT_IS": {
+        "en": "Query shortcut is: ",
+    },
 }
 
 # This function will throw "gettext _() is deprecated" and "_ global will break in the future; please see anki/lang.py" deprication

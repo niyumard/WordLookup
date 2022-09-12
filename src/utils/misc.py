@@ -25,7 +25,7 @@ from aqt.qt import QIcon
 __all__ = [
     "ignore_exception",
     "get_model_byId",
-    "get_icon",
+    "resources_path",
     "get_ord_from_fldname",
     "MapDict",
 ]
@@ -62,11 +62,11 @@ def get_ord_from_fldname(model, name):
             return fld["ord"]
 
 
-def get_icon(filename):
+def resources_path(filename):
     curdir = os.path.dirname(os.path.abspath(__file__))
     pardir = os.path.join(curdir, os.pardir)
     path = os.path.join(pardir, "resources", filename)
-    return QIcon(path)
+    return path
 
 
 class MapDict(dict):

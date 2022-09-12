@@ -20,16 +20,16 @@
 import json
 import os
 
-from aqt import mw
+from aqt import QIcon, mw
 from aqt.utils import shortcut, showInfo, showText
 from .constants import VERSION
 from .gui.lang import _, _sl
-from .utils import get_icon
+from .utils.misc import resources_path
 
-CONFIG_FILENAME = "_wqcfg.json"
-ICON_FILE = "wqicon.png"
+CONFIG_FILENAME = resources_path("_wqcfg.json")
+ICON_FILE = resources_path("wqicon.png")
 
-app_icon = get_icon(ICON_FILE)
+app_icon = QIcon(ICON_FILE)
 
 
 class Config(object):
@@ -47,19 +47,26 @@ class Config(object):
         data["version"] = VERSION
         data["%s_last" % self.pmname] = data.get("last_model", self.last_model_id)
         self.data.update(data)
-        with open(self.path, "w", encoding="utf-8") as f:
-            json.dump(self.data, f, ensure_ascii=False)
+        try:
+            with open(self.path, "w", encoding="utf-8") as f:
+                json.dump(self.data, f, ensure_ascii=False)
+            print("Could update\n", self.path, "\n", type(self.path))
+
+        except:
+            print("Couldn't update")
 
     def read(self):
         try:
             f = open(self.path, "r", encoding="utf-8")
             self.data = json.load(f)
+            print("Could read")
             # self.version = self.data.get('version', '0')
             # if VERSION != self.version:
             #     # showInfo(VERSION + self.version)
             #     self.last_model_id, self.dirs = 0, list()
         except:
             self.data = dict()
+            print("Couldn't read.")
 
     def get_maps(self, model_id):
         return self.data.get(str(model_id), list())

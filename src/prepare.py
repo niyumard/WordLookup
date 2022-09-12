@@ -32,6 +32,7 @@ from .query import (
 )
 from .context import config, app_icon
 from .gui import dialogs
+from .gui.lang import _
 
 ############## other config here ##################
 # update all fields ignoring the original field content
@@ -60,12 +61,12 @@ def query_decor(func, obj):
 def add_query_button(self):
     bb = self.form.buttonBox
     ar = QDialogButtonBox.ActionRole
-    self.queryButton = bb.addButton(_("Query"), ar)
+    self.queryButton = bb.addButton(_("QUERY"), ar)
     self.queryButton.clicked.connect(
         query_decor(query_from_editor_all_fields, self.editor)
     )
     self.queryButton.setShortcut(QKeySequence(my_shortcut))
-    self.queryButton.setToolTip(shortcut(_("Query (shortcut: %s)" % my_shortcut)))
+    self.queryButton.setToolTip(shortcut(_("QUERY_SHORTCUT_IS") + my_shortcut))
 
 
 def setup_browser_menu():

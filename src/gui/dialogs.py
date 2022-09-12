@@ -10,7 +10,7 @@ from . import ui_options, ui_dicts_setting, ui_dict_chooser
 from .lang import _, _sl
 from ..service import service_manager
 from ..context import config
-from ..utils import MapDict, get_icon, get_model_byId, get_ord_from_fldname
+from ..utils import MapDict, get_model_byId, get_ord_from_fldname
 from ..constants import VERSION, Endpoint, Template
 from ..utils.misc import all_note_types
 
