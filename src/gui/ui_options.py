@@ -44,7 +44,6 @@ class Ui_Dialog(object):
         self.verticalLayout.addWidget(self.lwDicts)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setObjectName("horizontalLayout")
-        self.horizontalLayout.addWidget(self.btnParameter)
         self.btnAbout = QtWidgets.QPushButton(Dialog)
         self.btnAbout.setObjectName("btnAbout")
         self.horizontalLayout.addWidget(self.btnAbout)
