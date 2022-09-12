@@ -1,4 +1,4 @@
-#-*- coding:utf-8 -*-
+# -*- coding:utf-8 -*-
 try:
     import urllib2
 except:
@@ -10,7 +10,6 @@ from .base import WebService, export, register, with_styles
 
 @register("Oxford")
 class Oxford(WebService):
-
     def __init__(self):
         super(Oxford, self).__init__()
 

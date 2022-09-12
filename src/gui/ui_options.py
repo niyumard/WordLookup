@@ -8,11 +8,14 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
         Dialog.resize(525, 412)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(Dialog.sizePolicy().hasHeightForWidth())
@@ -29,7 +32,9 @@ class Ui_Dialog(object):
         self.horizontalLayout_2.addWidget(self.btnModelChooser)
         self.verticalLayout.addLayout(self.horizontalLayout_2)
         self.lwDicts = QtWidgets.QListWidget(Dialog)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.lwDicts.sizePolicy().hasHeightForWidth())
@@ -48,7 +53,9 @@ class Ui_Dialog(object):
         self.btnAbout = QtWidgets.QPushButton(Dialog)
         self.btnAbout.setObjectName("btnAbout")
         self.horizontalLayout.addWidget(self.btnAbout)
-        spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        spacerItem = QtWidgets.QSpacerItem(
+            40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum
+        )
         self.horizontalLayout.addItem(spacerItem)
         self.buttonBox = QtWidgets.QDialogButtonBox(Dialog)
         self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Ok)
@@ -73,4 +80,3 @@ class Ui_Dialog(object):
         self.btnParameter.setText(_translate("Dialog", "Settings"))
         self.btnUpdate.setText(_translate("Dialog", "Update"))
         self.btnAbout.setText(_translate("Dialog", "About"))
-

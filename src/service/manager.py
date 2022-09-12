@@ -1,4 +1,4 @@
-#-*- coding:utf-8 -*-
+# -*- coding:utf-8 -*-
 #
 # Copyright © 2016–2017 Liang Feng <finalion@gmail.com>
 #
@@ -30,7 +30,6 @@ from ..utils import MapDict, importlib
 
 
 class ServiceManager(object):
-
     def __init__(self):
         self.update_services()
 
@@ -40,10 +39,10 @@ class ServiceManager(object):
 
     # def start_all(self):
     #     self.fetch_headers()
-        # make all local services available
-        # for service in self.local_services:
-        #     if not service.index(only_header=True):
-        #         self.local_services.remove(service)
+    # make all local services available
+    # for service in self.local_services:
+    #     if not service.index(only_header=True):
+    #         self.local_services.remove(service)
 
     def update_services(self):
         self.web_services, self.local_custom_services = self._get_services_from_files()
@@ -71,15 +70,19 @@ class ServiceManager(object):
         """
         web_services, local_custom_services = set(), set()
         mypath = os.path.dirname(os.path.realpath(__file__))
-        files = [f for f in os.listdir(mypath)
-                 if f not in ('__init__.py', 'base.py', 'manager.py') and not f.endswith('.pyc')]
-        base_class = (WebService, LocalService,
-                      MdxService, StardictService)
+        files = [
+            f
+            for f in os.listdir(mypath)
+            if f not in ("__init__.py", "base.py", "manager.py")
+            and not f.endswith(".pyc")
+        ]
+        base_class = (WebService, LocalService, MdxService, StardictService)
 
         for f in files:
             try:
                 module = importlib.import_module(
-                    '.%s' % os.path.splitext(f)[0], __package__)
+                    ".%s" % os.path.splitext(f)[0], __package__
+                )
                 for name, cls in inspect.getmembers(module, predicate=inspect.isclass):
                     if cls in base_class:
                         continue
@@ -87,7 +90,7 @@ class ServiceManager(object):
                         service = cls(*args)
                         if issubclass(cls, WebService):
                             web_services.add(service)
-                         # get the customized local services
+                        # get the customized local services
                         if issubclass(cls, LocalService):
                             local_custom_services.add(service)
                     except Exception:
@@ -109,5 +112,6 @@ class ServiceManager(object):
                         services.add(StardictService(dict_path))
                 # support mdx dictionary and stardict format dictionary
         return services
+
 
 service_manager = ServiceManager()

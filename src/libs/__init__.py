@@ -1,4 +1,4 @@
-#-*- coding:utf-8 -*-
+# -*- coding:utf-8 -*-
 #
 # Copyright © 2016–2017 Liang Feng <finalion@gmail.com>
 #

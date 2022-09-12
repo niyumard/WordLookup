@@ -1,4 +1,4 @@
-#-*- coding:utf-8 -*-
+# -*- coding:utf-8 -*-
 #
 # Copyright © 2016–2017 Liang Feng <finalion@gmail.com>
 #
@@ -18,9 +18,11 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import os
+
 # import ntpath
 import re
 import urllib
+
 try:
     import urllib2
 except:
@@ -32,17 +34,15 @@ from aqt.utils import showInfo, showText
 from .base import QueryResult, WebService, export, register, with_styles
 
 
-@register(u'MDX server')
+@register("MDX server")
 class RemoteMdx(WebService):
-
     def __init__(self):
         super(RemoteMdx, self).__init__()
         self.cache = defaultdict(set)
 
     def active(self, dict_path, word):
         self.word = word
-        self.url = dict_path + \
-            '/' if not dict_path.endswith('/') else dict_path
+        self.url = dict_path + "/" if not dict_path.endswith("/") else dict_path
         try:
             req = urllib2.urlopen(self.url + word)
             result, js = self.adapt_to_anki(req.read())
@@ -55,10 +55,10 @@ class RemoteMdx(WebService):
         self.cache[self.url].update(diff)
         errors, styles = list(), list()
         for each in diff:
-            basename = os.path.basename(each.replace('\\', os.path.sep))
-            saved_basename = '_' + basename
+            basename = os.path.basename(each.replace("\\", os.path.sep))
+            saved_basename = "_" + basename
             abs_url = urlparse.urljoin(self.url, each)
-            if basename.endswith('.css') or basename.endswith('.js'):
+            if basename.endswith(".css") or basename.endswith(".js"):
                 styles.append(saved_basename)
             if not os.path.exists(saved_basename):
                 try:
@@ -81,12 +81,20 @@ class RemoteMdx(WebService):
         msrc = re.findall(r'<img.*?src="([\w\./]\S+?)".*?>', html)
         media_files_set.update(set(msrc))
         for each in media_files_set:
-            html = html.replace(each, '_' + each.split('/')[-1])
+            html = html.replace(each, "_" + each.split("/")[-1])
         errors, styles = self.download_media_files(media_files_set)
-        html = u'<br>'.join([u"<style>@import url('%s');</style>".format(style)
-                             for style in styles if style.endswith('.css')]) + html
-        js = re.findall(r'<script.*?>.*?</script>', html, re.DOTALL)
+        html = (
+            "<br>".join(
+                [
+                    "<style>@import url('%s');</style>".format(style)
+                    for style in styles
+                    if style.endswith(".css")
+                ]
+            )
+            + html
+        )
+        js = re.findall(r"<script.*?>.*?</script>", html, re.DOTALL)
         # for each in js:
         #     html = html.replace(each, '')
         # showText(html)
-        return unicode(html), u'\n'.join(js)
+        return unicode(html), "\n".join(js)

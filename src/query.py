@@ -1,4 +1,4 @@
-#-*- coding:utf-8 -*-
+# -*- coding:utf-8 -*-
 #
 # Copyright © 2016–2017 Liang Feng <finalion@gmail.com>
 #
@@ -36,15 +36,15 @@ from .utils import Empty, MapDict, Queue, wrap_css
 
 
 def inspect_note(note):
-    '''
+    """
     inspect the note, and get necessary input parameters
     return word_ord: field index of the word in current note
     return word: the word
     return maps: dicts map of current note
-    '''
-    maps = config.get_maps(note.model()['id'])
+    """
+    maps = config.get_maps(note.model()["id"])
     for i, m in enumerate(maps):
-        if m.get('word_checked', False):
+        if m.get("word_checked", False):
             word_ord = i
             break
     else:
@@ -53,7 +53,7 @@ def inspect_note(note):
         word_ord = 0
 
     def purify_word(word):
-        return word.strip() if word else ''
+        return word.strip() if word else ""
 
     word = purify_word(note.fields[word_ord])
     return word_ord, word, maps
@@ -63,8 +63,7 @@ def query_from_browser(browser):
     if not browser:
         return
     work_manager.reset_query_counts()
-    notes = [browser.mw.col.getNote(note_id)
-             for note_id in browser.selectedNotes()]
+    notes = [browser.mw.col.getNote(note_id) for note_id in browser.selectedNotes()]
     if len(notes) == 0:
         return
     if len(notes) == 1:
@@ -81,7 +80,10 @@ def query_from_browser(browser):
                 update_note_fields(note, results)
                 fields_number += len(results)
                 progress.update_labels(
-                    MapDict(type='count', words_number=i + 1, fields_number=fields_number))
+                    MapDict(
+                        type="count", words_number=i + 1, fields_number=fields_number
+                    )
+                )
             except InvalidWordException:
                 showInfo(_("NO_QUERY_WORD"))
         promot_choose_css()
@@ -89,8 +91,15 @@ def query_from_browser(browser):
         progress.finish()
         # browser.model.reset()
         # browser.endReset()
-        tooltip(u'{0} {1} {2}, {3} {4}'.format(
-            _('UPDATED'), i + 1, _('CARDS'), work_manager.completed_query_counts(), _('FIELDS')))
+        tooltip(
+            "{0} {1} {2}, {3} {4}".format(
+                _("UPDATED"),
+                i + 1,
+                _("CARDS"),
+                work_manager.completed_query_counts(),
+                _("FIELDS"),
+            )
+        )
 
 
 def query_from_editor_all_fields(editor):
@@ -107,7 +116,7 @@ def query_from_editor_all_fields(editor):
     progress.finish()
     promot_choose_css()
     editor.setNote(editor.note, focusTo=0)
-    editor.saveNow(lambda:None)
+    editor.saveNow(lambda: None)
 
 
 def query_from_editor_current_field(editor):
@@ -148,8 +157,8 @@ def update_note_field(note, fld_index, fld_result):
     # if not result:
     #     return
     if not config.force_update and not result:
-        return 
-    note.fields[fld_index] = result if result else ''
+        return
+    note.fields[fld_index] = result if result else ""
     note.flush()
 
 
@@ -157,13 +166,13 @@ def promot_choose_css():
     for local_service in service_manager.local_services:
         try:
             missed_css = local_service.missed_css.pop()
-            showInfo(Template.miss_css.format(
-                dict=local_service.title, css=missed_css))
+            showInfo(Template.miss_css.format(dict=local_service.title, css=missed_css))
             filepath = QFileDialog.getOpenFileName(
-                caption=u'Choose css file', filter=u'CSS (*.css)')[0]
+                caption="Choose css file", filter="CSS (*.css)"
+            )[0]
             if filepath:
-                shutil.copy(filepath, u'_' + missed_css)
-                wrap_css(u'_' + missed_css)
+                shutil.copy(filepath, "_" + missed_css)
+                wrap_css("_" + missed_css)
                 local_service.missed_css.clear()
 
         except KeyError as e:
@@ -172,27 +181,28 @@ def promot_choose_css():
 
 def add_to_tmpl(note, **kwargs):
     # templates
-    '''
+    """
     [{u'name': u'Card 1', u'qfmt': u'{{Front}}\n\n', u'did': None, u'bafmt': u'',
         u'afmt': u'{{FrontSide}}\n\n<hr id=answer>\n\n{{Back}}\n\n{{12}}\n\n{{44}}\n\n', u'ord': 0, u'bqfmt': u''}]
-    '''
+    """
     # showInfo(str(kwargs))
-    afmt = note.model()['tmpls'][0]['afmt']
+    afmt = note.model()["tmpls"][0]["afmt"]
     if kwargs:
-        jsfile, js = kwargs.get('jsfile', None), kwargs.get('js', None)
+        jsfile, js = kwargs.get("jsfile", None), kwargs.get("js", None)
         if js and js.strip():
             addings = js.strip()
             if addings not in afmt:
-                if not addings.startswith(u'<script') and not addings.endswith(u'/script>'):
-                    addings = u'\r\n<script>{}</script>'.format(addings)
+                if not addings.startswith("<script") and not addings.endswith(
+                    "/script>"
+                ):
+                    addings = "\r\n<script>{}</script>".format(addings)
                 afmt += addings
         if jsfile:
-            new_jsfile = u'_' + \
-                jsfile if not jsfile.startswith(u'_') else jsfile
+            new_jsfile = "_" + jsfile if not jsfile.startswith("_") else jsfile
             copy_static_file(jsfile, new_jsfile)
-            addings = u'\r\n<script src="{}"></script>'.format(new_jsfile)
+            addings = '\r\n<script src="{}"></script>'.format(new_jsfile)
             afmt += addings
-        note.model()['tmpls'][0]['afmt'] = afmt
+        note.model()["tmpls"][0]["afmt"] = afmt
 
 
 class InvalidWordException(Exception):
@@ -206,7 +216,8 @@ def join_result(query_func):
             while not worker.isFinished():
                 mw.app.processEvents()
                 worker.wait(100)
-        return handle_results('__query_over__')
+        return handle_results("__query_over__")
+
     return wrap
 
 
@@ -216,16 +227,16 @@ def query_all_flds(note):
     word_ord, word, maps = inspect_note(note)
     if not word:
         raise InvalidWordException
-    progress.update_title(u'Querying [[ %s ]]' % word)
+    progress.update_title("Querying [[ %s ]]" % word)
     for i, each in enumerate(maps):
         if i == word_ord:
             continue
         if i == len(note.fields):
             break
-        dict_name = each.get('dict', '').strip()
-        dict_field = each.get('dict_field', '').strip()
-        dict_unique = each.get('dict_unique', '').strip()
-        if dict_name and dict_name not in _sl('NOT_DICT_FIELD') and dict_field:
+        dict_name = each.get("dict", "").strip()
+        dict_field = each.get("dict_field", "").strip()
+        dict_unique = each.get("dict_unique", "").strip()
+        if dict_name and dict_name not in _sl("NOT_DICT_FIELD") and dict_field:
             worker = work_manager.get_worker(dict_unique)
             worker.target(i, dict_field, word)
     work_manager.start_all_workers()
@@ -237,14 +248,14 @@ def query_single_fld(note, fld_index):
     word_ord, word, maps = inspect_note(note)
     if not word:
         raise InvalidWordException
-    progress.update_title(u'Querying [[ %s ]]' % word)
+    progress.update_title("Querying [[ %s ]]" % word)
     # assert fld_index > 0
     if fld_index >= len(maps):
         return QueryResult()
-    dict_name = maps[fld_index].get('dict', '').strip()
-    dict_field = maps[fld_index].get('dict_field', '').strip()
-    dict_unique = maps[fld_index].get('dict_unique', '').strip()
-    if dict_name and dict_name not in _sl('NOT_DICT_FIELD') and dict_field:
+    dict_name = maps[fld_index].get("dict", "").strip()
+    dict_field = maps[fld_index].get("dict_field", "").strip()
+    dict_unique = maps[fld_index].get("dict_unique", "").strip()
+    if dict_name and dict_name not in _sl("NOT_DICT_FIELD") and dict_field:
         worker = work_manager.get_worker(dict_unique)
         worker.target(fld_index, dict_field, word)
     work_manager.start_all_workers()
@@ -253,14 +264,13 @@ def query_single_fld(note, fld_index):
 @pyqtSlot(dict)
 def handle_results(result):
     # showInfo('slot: ' + str(result))
-    if result != '__query_over__':
+    if result != "__query_over__":
         # progress.
         handle_results.total.update(result)
     return handle_results.total
 
 
 class QueryWorkerManager(object):
-
     def __init__(self):
         self.workers = defaultdict(QueryWorker)
 

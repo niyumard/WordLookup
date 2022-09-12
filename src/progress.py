@@ -18,7 +18,6 @@ from .gui.lang import _, _sl
 
 
 class ProgressManager(QObject):
-
     def __init__(self, mw):
         self.mw = mw
         self.app = QApplication.instance()
@@ -29,12 +28,13 @@ class ProgressManager(QObject):
         self.rows_number = 0
         self._msg_info = defaultdict(dict)
         self._msg_count = defaultdict(int)
+
     # Creating progress dialogs
     ##########################################################################
 
     # @pyqtSlot(dict)
     def update_labels(self, data):
-        if data.type == 'count':
+        if data.type == "count":
             self._msg_count.update(data)
         else:
             self._msg_info[data.index] = data
@@ -44,23 +44,27 @@ class ProgressManager(QObject):
             info = self._msg_info.get(index, None)
             if not info:
                 continue
-            if info.type == 'text':
+            if info.type == "text":
                 lst.append(info.text)
             else:
-                lst.append(u"{2} [{0}] {1}".format(
-                    info.service_name, info.field_name, info.flag))
+                lst.append(
+                    "{2} [{0}] {1}".format(
+                        info.service_name, info.field_name, info.flag
+                    )
+                )
 
-        number_info = ''
+        number_info = ""
         words_number, fields_number = (
-            self._msg_count['words_number'],  self._msg_count['fields_number'])
+            self._msg_count["words_number"],
+            self._msg_count["fields_number"],
+        )
         if words_number or fields_number:
-            number_info += '<br>' + 45 * '-' + '<br>'
-            number_info += u'{0} {1} {2}, {3} {4}'.format(
-                _('QUERIED'), words_number, _(
-                    'WORDS'), fields_number, _('FIELDS')
+            number_info += "<br>" + 45 * "-" + "<br>"
+            number_info += "{0} {1} {2}, {3} {4}".format(
+                _("QUERIED"), words_number, _("WORDS"), fields_number, _("FIELDS")
             )
 
-        self.update('<br>'.join(lst) + number_info)
+        self.update("<br>".join(lst) + number_info)
         self._win.adjustSize()
 
     def update_title(self, title):

@@ -1,4 +1,4 @@
-#-*- coding:utf-8 -*-
+# -*- coding:utf-8 -*-
 #
 # Copyright © 2016–2017 Liang Feng <finalion@gmail.com>
 #
@@ -26,18 +26,17 @@ from .constants import VERSION
 from .gui.lang import _, _sl
 from .utils import get_icon
 
-CONFIG_FILENAME = '_wqcfg.json'
-ICON_FILE = 'wqicon.png'
+CONFIG_FILENAME = "_wqcfg.json"
+ICON_FILE = "wqicon.png"
 
 app_icon = get_icon(ICON_FILE)
 
 
 class Config(object):
-
     def __init__(self, window):
         self.path = CONFIG_FILENAME
         self.window = window
-        self.version = '0'
+        self.version = "0"
         self.read()
 
     @property
@@ -45,20 +44,20 @@ class Config(object):
         return self.window.pm.name
 
     def update(self, data):
-        data['version'] = VERSION
-        data['%s_last' % self.pmname] = data.get('last_model', self.last_model_id)
+        data["version"] = VERSION
+        data["%s_last" % self.pmname] = data.get("last_model", self.last_model_id)
         self.data.update(data)
-        with open(self.path, 'w', encoding='utf-8') as f:
+        with open(self.path, "w", encoding="utf-8") as f:
             json.dump(self.data, f, ensure_ascii=False)
 
     def read(self):
         try:
-            f = open(self.path, 'r',encoding="utf-8")
+            f = open(self.path, "r", encoding="utf-8")
             self.data = json.load(f)
-                # self.version = self.data.get('version', '0')
-                # if VERSION != self.version:
-                #     # showInfo(VERSION + self.version)
-                #     self.last_model_id, self.dirs = 0, list()
+            # self.version = self.data.get('version', '0')
+            # if VERSION != self.version:
+            #     # showInfo(VERSION + self.version)
+            #     self.last_model_id, self.dirs = 0, list()
         except:
             self.data = dict()
 
@@ -67,23 +66,23 @@ class Config(object):
 
     @property
     def last_model_id(self):
-        return self.data.get('%s_last' % self.pmname, 0)
+        return self.data.get("%s_last" % self.pmname, 0)
 
     @property
     def dirs(self):
-        return self.data.get('dirs', list())
+        return self.data.get("dirs", list())
 
     @property
     def use_filename(self):
-        return self.data.get('use_filename', True)
+        return self.data.get("use_filename", True)
 
     @property
     def export_media(self):
-        return self.data.get('export_media', False)
+        return self.data.get("export_media", False)
 
     @property
     def force_update(self):
-        return self.data.get('force_update', False)
+        return self.data.get("force_update", False)
 
 
 config = Config(mw)

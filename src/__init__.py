@@ -1,4 +1,4 @@
-#-*- coding:utf-8 -*-
+# -*- coding:utf-8 -*-
 #
 # Copyright © 2016–2017 Liang Feng <finalion@gmail.com>
 #
@@ -23,12 +23,13 @@ from anki.hooks import addHook
 # update all fields ignoring the original field content
 update_all = False
 # shortcut
-shortcut = 'Ctrl+Q'
+shortcut = "Ctrl+Q"
 ###################################################
 
 
 def start_here():
     from . import prepare
+
     # wquery.config.read()
     if not prepare.have_setup:
         prepare.setup_options_menu()
@@ -37,5 +38,6 @@ def start_here():
         prepare.setup_context_menu()
     # wquery.start_services()
     # prepare.set_shortcut(shortcut)
+
 
 addHook("profileLoaded", start_here)

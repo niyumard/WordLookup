@@ -15,7 +15,7 @@ from warnings import filterwarnings
 
 filterwarnings("ignore")
 
-js = '''
+js = """
 var initVoice = function () {
     var player = document.getElementById('dictVoice');
     document.addEventListener('click', function (e) {
@@ -30,53 +30,70 @@ var initVoice = function () {
     }, false);
 };
 initVoice();
-'''
+"""
 
 youdao_download_mp3 = True
 
 
-@register(u'有道词典')
+@register("有道词典")
 class Youdao(WebService):
-
     def __init__(self):
         super(Youdao, self).__init__()
 
-    def _get_from_api(self, lang='eng'):
-        url = "http://dict.youdao.com/fsearch?client=deskdict&keyfrom=chrome.extension&pos=-1&doctype=xml&xmlVersion=3.2&dogVersion=1.0&vendor=unknown&appVer=3.1.17.4208&le=%s&q=%s" % (
-            lang, self.word)
-        phonetics, explains = '', ''
+    def _get_from_api(self, lang="eng"):
+        url = (
+            "http://dict.youdao.com/fsearch?client=deskdict&keyfrom=chrome.extension&pos=-1&doctype=xml&xmlVersion=3.2&dogVersion=1.0&vendor=unknown&appVer=3.1.17.4208&le=%s&q=%s"
+            % (lang, self.word)
+        )
+        phonetics, explains = "", ""
         try:
             result = urllib2.urlopen(url, timeout=5).read()
             # showInfo(str(result))
             doc = xml.etree.ElementTree.fromstring(result)
             # fetch symbols
-            symbol, uk_symbol, us_symbol = doc.findtext(".//phonetic-symbol"), doc.findtext(
-                ".//uk-phonetic-symbol"), doc.findtext(".//us-phonetic-symbol")
+            symbol, uk_symbol, us_symbol = (
+                doc.findtext(".//phonetic-symbol"),
+                doc.findtext(".//uk-phonetic-symbol"),
+                doc.findtext(".//us-phonetic-symbol"),
+            )
             if uk_symbol and us_symbol:
-                phonetics = 'UK [%s]   US [%s]' % (uk_symbol, us_symbol)
+                phonetics = "UK [%s]   US [%s]" % (uk_symbol, us_symbol)
             elif symbol:
-                phonetics = '[%s]' % symbol
+                phonetics = "[%s]" % symbol
             else:
-                phonetics = ''
+                phonetics = ""
             # fetch explanations
-            explains = '<br>'.join([node.text for node in doc.findall(
-                ".//custom-translation/translation/content")])
-            return self.cache_this({'phonetic': phonetics, 'explains': explains})
+            explains = "<br>".join(
+                [
+                    node.text
+                    for node in doc.findall(".//custom-translation/translation/content")
+                ]
+            )
+            return self.cache_this({"phonetic": phonetics, "explains": explains})
         except:
-            return {'phonetic': phonetics, 'explains': explains}
+            return {"phonetic": phonetics, "explains": explains}
 
-    @export(u'音标', 0)
+    @export("音标", 0)
     def fld_phonetic(self):
-        return self.cache_result('phonetic') if self.cached('phonetic') else self._get_from_api()['phonetic']
+        return (
+            self.cache_result("phonetic")
+            if self.cached("phonetic")
+            else self._get_from_api()["phonetic"]
+        )
 
-    @export(u'基本释义', 1)
+    @export("基本释义", 1)
     def fld_explains(self):
-        return self.cache_result('explains') if self.cached('explains') else self._get_from_api()['explains']
+        return (
+            self.cache_result("explains")
+            if self.cached("explains")
+            else self._get_from_api()["explains"]
+        )
 
-    @with_styles(cssfile='_youdao.css', js=js, need_wrap_css=True, wrap_class='youdao')
-    def _get_singledict(self, single_dict, lang='eng'):
-        url = u"http://m.youdao.com/singledict?q={0}&dict={1}&le={2}&more=false".format(
-            self.word, 'collins' if single_dict == 'collins_eng' else single_dict, lang)
+    @with_styles(cssfile="_youdao.css", js=js, need_wrap_css=True, wrap_class="youdao")
+    def _get_singledict(self, single_dict, lang="eng"):
+        url = "http://m.youdao.com/singledict?q={0}&dict={1}&le={2}&more=false".format(
+            self.word, "collins" if single_dict == "collins_eng" else single_dict, lang
+        )
         try:
             result = urllib2.urlopen(url, timeout=5).read()
             html = """
@@ -86,7 +103,10 @@ class Youdao(WebService):
             <div id="outer">
                 <audio id="dictVoice" style="display: none"></audio>
             </div>
-            """.format('collins' if single_dict == 'collins_eng' else single_dict, result.decode('utf-8'))
+            """.format(
+                "collins" if single_dict == "collins_eng" else single_dict,
+                result.decode("utf-8"),
+            )
 
             if single_dict != "collins_eng":
                 return html
@@ -105,15 +125,20 @@ class Youdao(WebService):
                             continue
                         tags.extend(replace_chinese_tag(tag))
                 else:
-                    match = re.search("[\u4e00-\u9fa5]", soup.text if isinstance(soup, Tag) else str(soup))
+                    match = re.search(
+                        "[\u4e00-\u9fa5]",
+                        soup.text if isinstance(soup, Tag) else str(soup),
+                    )
                     try:
-                        has_title_attr = 'title' in soup.attrs
+                        has_title_attr = "title" in soup.attrs
                     except AttributeError:
                         has_title_attr = False
                     if not match or has_title_attr:
                         if has_title_attr:
-                            soup.string = soup['title']
-                        if re.match("(\s+)?\d{1,2}\.(\s+)?", soup.string if soup.string else ""):
+                            soup.string = soup["title"]
+                        if re.match(
+                            "(\s+)?\d{1,2}\.(\s+)?", soup.string if soup.string else ""
+                        ):
                             p_tag = Tag(name="p")
                             p_tag.insert(0, Tag(name="br"))
                             tags.append(p_tag)
@@ -126,99 +151,104 @@ class Youdao(WebService):
                                 tags.append(soup)
                 return tags
 
-            if len(result.decode('utf-8')) <= 40:  # 32
-                return self._get_singledict('ee')['result']
+            if len(result.decode("utf-8")) <= 40:  # 32
+                return self._get_singledict("ee")["result"]
             bs = BeautifulSoup(html)
             ul_tag = bs.find("ul")
-            ul_html = BeautifulSoup("".join([str(tag) for tag in replace_chinese_tag(ul_tag)]))
+            ul_html = BeautifulSoup(
+                "".join([str(tag) for tag in replace_chinese_tag(ul_tag)])
+            )
             bs.ul.replace_with(ul_html)
             return bs.prettify()
 
         except:
-            return ''
+            return ""
 
-    @export(u'柯林斯英英', 17)
+    @export("柯林斯英英", 17)
     def fld_collins_eng(self):
-        return self._get_singledict('collins_eng')
+        return self._get_singledict("collins_eng")
 
-    @export(u'英式发音', 2)
+    @export("英式发音", 2)
     def fld_british_audio(self):
-        audio_url = u'https://dict.youdao.com/dictvoice?audio={}&type=1'.format(
-            self.word)
+        audio_url = "https://dict.youdao.com/dictvoice?audio={}&type=1".format(
+            self.word
+        )
         if youdao_download_mp3:
-            filename = u'_youdao_{}_uk.mp3'.format(self.word)
+            filename = "_youdao_{}_uk.mp3".format(self.word)
             if self.download(audio_url, filename):
-                return self.get_anki_label(filename, 'audio')
+                return self.get_anki_label(filename, "audio")
         return audio_url
 
-    @export(u'美式发音', 3)
+    @export("美式发音", 3)
     def fld_american_audio(self):
-        audio_url = u'https://dict.youdao.com/dictvoice?audio={}&type=2'.format(
-            self.word)
+        audio_url = "https://dict.youdao.com/dictvoice?audio={}&type=2".format(
+            self.word
+        )
         if youdao_download_mp3:
-            filename = u'_youdao_{}_us.mp3'.format(self.word)
+            filename = "_youdao_{}_us.mp3".format(self.word)
             if self.download(audio_url, filename):
-                return self.get_anki_label(filename, 'audio')
+                return self.get_anki_label(filename, "audio")
         return audio_url
 
-    @export(u'柯林斯英汉', 4)
+    @export("柯林斯英汉", 4)
     def fld_collins(self):
-        return self._get_singledict('collins')
+        return self._get_singledict("collins")
 
-    @export(u'21世纪', 5)
+    @export("21世纪", 5)
     def fld_ec21(self):
-        return self._get_singledict('ec21')
+        return self._get_singledict("ec21")
 
-    @export(u'英英释义', 6)
+    @export("英英释义", 6)
     def fld_ee(self):
-        return self._get_singledict('ee')
+        return self._get_singledict("ee")
 
-    @export(u'网络释义', 7)
+    @export("网络释义", 7)
     def fld_web_trans(self):
-        return self._get_singledict('web_trans')
+        return self._get_singledict("web_trans")
 
-    @export(u'同根词', 8)
+    @export("同根词", 8)
     def fld_rel_word(self):
-        return self._get_singledict('rel_word')
+        return self._get_singledict("rel_word")
 
-    @export(u'同近义词', 9)
+    @export("同近义词", 9)
     def fld_syno(self):
-        return self._get_singledict('syno')
+        return self._get_singledict("syno")
 
-    @export(u'双语例句', 10)
+    @export("双语例句", 10)
     def fld_blng_sents_part(self):
-        return self._get_singledict('blng_sents_part')
+        return self._get_singledict("blng_sents_part")
 
-    @export(u'原生例句', 11)
+    @export("原生例句", 11)
     def fld_media_sents_part(self):
-        return self._get_singledict('media_sents_part')
+        return self._get_singledict("media_sents_part")
 
-    @export(u'权威例句', 12)
+    @export("权威例句", 12)
     def fld_auth_sents_part(self):
-        return self._get_singledict('auth_sents_part')
+        return self._get_singledict("auth_sents_part")
 
-    @export(u'新英汉大辞典(中)', 13)
+    @export("新英汉大辞典(中)", 13)
     def fld_ce_new(self):
-        return self._get_singledict('ce_new')
+        return self._get_singledict("ce_new")
 
-    @export(u'百科', 14)
+    @export("百科", 14)
     def fld_baike(self):
-        return self._get_singledict('baike')
+        return self._get_singledict("baike")
 
-    @export(u'汉语词典(中)', 15)
+    @export("汉语词典(中)", 15)
     def fld_hh(self):
-        return self._get_singledict('hh')
+        return self._get_singledict("hh")
 
-    @export(u'专业释义(中)', 16)
+    @export("专业释义(中)", 16)
     def fld_special(self):
-        return self._get_singledict('special')
+        return self._get_singledict("special")
 
-    @export(u'美式发音', 3)
+    @export("美式发音", 3)
     def fld_american_audio(self):
-        audio_url = u'https://dict.youdao.com/dictvoice?audio={}&type=2'.format(
-            self.word)
+        audio_url = "https://dict.youdao.com/dictvoice?audio={}&type=2".format(
+            self.word
+        )
         if youdao_download_mp3:
-            filename = u'_youdao_{}_us.mp3'.format(self.word)
+            filename = "_youdao_{}_us.mp3".format(self.word)
             if self.download(audio_url, filename):
-                return self.get_anki_label(filename, 'audio')
+                return self.get_anki_label(filename, "audio")
         return audio_url

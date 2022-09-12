@@ -1,4 +1,4 @@
-#-*- coding:utf-8 -*-
+# -*- coding:utf-8 -*-
 #
 # Copyright © 2016–2017 Liang Feng <finalion@gmail.com>
 #
@@ -19,9 +19,6 @@
 
 from .manager import service_manager
 from .base import QueryResult, copy_static_file
-
-
-
 
 
 # def start_services():

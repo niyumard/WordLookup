@@ -13,6 +13,7 @@ from ..context import config
 from ..utils import MapDict, get_icon, get_model_byId, get_ord_from_fldname
 from ..constants import VERSION, Endpoint, Template
 
+
 class DictChooser(QtWidgets.QWidget):
     def __init__(self, parent=None):
         QtWidgets.QWidget.__init__(self, parent)
@@ -42,8 +43,8 @@ class DictChooser(QtWidgets.QWidget):
             "word_checked": self.ui.btnCheckWord.isChecked(),
             "dict": self.ui.comboDicts.currentText().strip(),
             "dict_unique": service_id if service_id else "",
-            "dict_field": self.ui.comboDictFields.currentText().strip()
-            }
+            "dict_field": self.ui.comboDictFields.currentText().strip(),
+        }
 
     def update(self, data=None):
         """
@@ -51,11 +52,12 @@ class DictChooser(QtWidgets.QWidget):
         """
         if data:
             note_field, word_checked, dict_name, dict_unique, dict_field = (
-                data.get('fld_name', ''),
-                data.get('word_checked', False),
-                data.get('dict', _('NOT_DICT_FIELD')),
-                data.get('dict_unique', ''),
-                data.get('dict_field', ''),)
+                data.get("fld_name", ""),
+                data.get("word_checked", False),
+                data.get("dict", _("NOT_DICT_FIELD")),
+                data.get("dict_unique", ""),
+                data.get("dict_field", ""),
+            )
             self.ui.btnCheckWord.setChecked(word_checked)
             self.ui.btnCheckWord.setText(note_field)
         else:
@@ -69,21 +71,19 @@ class DictChooser(QtWidgets.QWidget):
     def fill_comboDicts(self):
         self.ui.comboDicts.clear()
         # add "not dict field"
-        self.ui.comboDicts.addItem(_('NOT_DICT_FIELD'))
+        self.ui.comboDicts.addItem(_("NOT_DICT_FIELD"))
         self.ui.comboDicts.insertSeparator(self.ui.comboDicts.count())
         # add local services
         for service in service_manager.local_services:
             # combo_data.insert("data", each.label)
-            self.ui.comboDicts.addItem(
-                service.title, userData=service.unique)
+            self.ui.comboDicts.addItem(service.title, userData=service.unique)
         # add web services
         self.ui.comboDicts.insertSeparator(self.ui.comboDicts.count())
         for service in service_manager.web_services:
-            self.ui.comboDicts.addItem(
-                service.title, userData=service.unique)
+            self.ui.comboDicts.addItem(service.title, userData=service.unique)
 
     def fill_comboFields(self, combo_dict_index):
-        self.is_word = (combo_dict_index == 0)
+        self.is_word = combo_dict_index == 0
         # showInfo("select dict index: "+str(combo_dict_index))
         self.ui.comboDictFields.clear()
         if not self.is_word:
@@ -91,7 +91,7 @@ class DictChooser(QtWidgets.QWidget):
             # showInfo("select dict service: "+str(service_unique))
             current_service = service_manager.get_service(
                 self.ui.comboDicts.itemData(combo_dict_index)
-                )
+            )
             if not current_service:
                 return
             for each in current_service.fields:
@@ -99,8 +99,8 @@ class DictChooser(QtWidgets.QWidget):
         else:
             self.ui.comboDictFields.setEnabled(False)
 
-class OptionsDlg(QtWidgets.QDialog):
 
+class OptionsDlg(QtWidgets.QDialog):
     def __init__(self, parent):
         QtWidgets.QDialog.__init__(self, parent)
         self.ui = ui_options.Ui_Dialog()
@@ -113,32 +113,33 @@ class OptionsDlg(QtWidgets.QDialog):
         self.current_model = get_model_byId(aqt.mw.col.models, config.last_model_id)
         if self.current_model:
             self.ui.btnModelChooser.setText(
-                u'%s [%s]' % (_('CHOOSE_NOTE_TYPES'),  self.current_model['name']))
+                "%s [%s]" % (_("CHOOSE_NOTE_TYPES"), self.current_model["name"])
+            )
             # build fields -- dicts layout
             self.build_mappings_layout(self.current_model)
 
     def build_mappings_layout(self, note_model):
         self.ui.lwDicts.clear()
-        maps = config.get_maps(note_model['id'])
+        maps = config.get_maps(note_model["id"])
         # self.radio_group = QButtonGroup()
-        for i, fld in enumerate(note_model['flds']):
-            ord, name = fld['ord'], fld['name']
+        for i, fld in enumerate(note_model["flds"]):
+            ord, name = fld["ord"], fld["name"]
             if maps:
                 for j, each in enumerate(maps):
-                    if each.get('fld_ord', -1) == ord:
-                        self.add_dict_widget(fld_name = name, **each)
+                    if each.get("fld_ord", -1) == ord:
+                        self.add_dict_widget(fld_name=name, **each)
                         break
                 else:
-                    self.add_dict_widget(fld_name = name)
+                    self.add_dict_widget(fld_name=name)
             else:
-                self.add_dict_widget(fld_name = name)
+                self.add_dict_widget(fld_name=name)
 
     def add_dict_widget(self, **data):
         widget = DictChooser()
         widget.update(data)
         self.btn_group.addButton(widget.btn_check)
         item = QtWidgets.QListWidgetItem()
-        item.setSizeHint(widget.sizeHint()) #important
+        item.setSizeHint(widget.sizeHint())  # important
         self.ui.lwDicts.insertItem(self.ui.lwDicts.count(), item)
         self.ui.lwDicts.setItemWidget(item, widget)
 
@@ -147,8 +148,7 @@ class OptionsDlg(QtWidgets.QDialog):
         return widget
 
     def show_dictSetting_dlg(self):
-        """ show dict setting dialog
-        """
+        """show dict setting dialog"""
         dict_dlg = DictSettingDlg(self)
         dict_dlg.activateWindow()
         dict_dlg.raise_()
@@ -159,27 +159,32 @@ class OptionsDlg(QtWidgets.QDialog):
                 chooser.update()
 
     def show_models(self):
-        """show model selection dialog which is created by anki.
-        """
-        edit = QtWidgets.QPushButton(anki.lang._("Manage"),
-                           clicked=lambda: aqt.models.Models(aqt.mw, self))
-        ret = StudyDeck(aqt.mw, names=lambda: sorted(aqt.mw.col.models.allNames()),
-                        accept=anki.lang._("Choose"), title=anki.lang._("Choose Note Type"),
-                        help="_notes", parent=self, buttons=[edit],
-                        cancel=True, geomKey="selectModel")
+        """show model selection dialog which is created by anki."""
+        edit = QtWidgets.QPushButton(
+            anki.lang._("Manage"), clicked=lambda: aqt.models.Models(aqt.mw, self)
+        )
+        ret = StudyDeck(
+            aqt.mw,
+            names=lambda: sorted(aqt.mw.col.models.allNames()),
+            accept=anki.lang._("Choose"),
+            title=anki.lang._("Choose Note Type"),
+            help="_notes",
+            parent=self,
+            buttons=[edit],
+            cancel=True,
+            geomKey="selectModel",
+        )
         if not ret.name:
             return
         model = aqt.mw.col.models.byName(ret.name)
-        self.ui.btnModelChooser.setText(
-            u'%s [%s]' % (_('CHOOSE_NOTE_TYPES'), ret.name))
+        self.ui.btnModelChooser.setText("%s [%s]" % (_("CHOOSE_NOTE_TYPES"), ret.name))
         if model:
             self.build_mappings_layout(model)
         self.current_model = model
 
     def show_about(self):
-        """show About dialog
-        """
-        QtWidgets.QMessageBox.about(self, _('ABOUT'), Template.tmpl_about)
+        """show About dialog"""
+        QtWidgets.QMessageBox.about(self, _("ABOUT"), Template.tmpl_about)
 
     def save(self):
         self.close()
@@ -189,12 +194,15 @@ class OptionsDlg(QtWidgets.QDialog):
         maps = []
         for chooser in self.ui.lwDicts.findChildren(DictChooser):
             status = chooser.status()
-            status['fld_ord'] = get_ord_from_fldname(self.current_model, chooser.btn_check.text())
+            status["fld_ord"] = get_ord_from_fldname(
+                self.current_model, chooser.btn_check.text()
+            )
             maps.append(status)
-        current_model_id = self.current_model['id']
+        current_model_id = self.current_model["id"]
         data[current_model_id] = maps
-        data['last_model'] = current_model_id
+        data["last_model"] = current_model_id
         config.update(data)
+
 
 class DictSettingDlg(QtWidgets.QDialog):
     def __init__(self, parent):
@@ -210,35 +218,50 @@ class DictSettingDlg(QtWidgets.QDialog):
 
     def add_folder(self):
         dir_ = QtWidgets.QFileDialog.getExistingDirectory(
-            self, caption=u"Select Folder", directory="", 
-            options=QtWidgets.QFileDialog.ShowDirsOnly | QtWidgets.QFileDialog.DontResolveSymlinks)
+            self,
+            caption="Select Folder",
+            directory="",
+            options=QtWidgets.QFileDialog.ShowDirsOnly
+            | QtWidgets.QFileDialog.DontResolveSymlinks,
+        )
         if dir_:
             self.ui.listWidgetFolders.addItem(dir_)
 
     def remove_folder(self):
-        item = self.ui.listWidgetFolders.takeItem(self.ui.listWidgetFolders.currentRow())
+        item = self.ui.listWidgetFolders.takeItem(
+            self.ui.listWidgetFolders.currentRow()
+        )
         del item
 
     def find_mdxes(self):
         for each in self.dirs:
             for dirpath, dirnames, filenames in os.walk(each):
-                self._dict_paths.extend([os.path.join(dirpath, filename)
-                                         for filename in filenames if filename.lower().endswith(u'.mdx')])
+                self._dict_paths.extend(
+                    [
+                        os.path.join(dirpath, filename)
+                        for filename in filenames
+                        if filename.lower().endswith(".mdx")
+                    ]
+                )
         self._dict_paths = list(set(self._dict_paths))
         return self._dict_paths
 
     def save(self):
-        #save data
-        data = {'dirs': self.dirs,
-                'use_filename': self.ui.checkUseFilename.isChecked(),
-                'export_media': self.ui.checkExportMedia.isChecked()}
+        # save data
+        data = {
+            "dirs": self.dirs,
+            "use_filename": self.ui.checkUseFilename.isChecked(),
+            "export_media": self.ui.checkExportMedia.isChecked(),
+        }
         config.update(data)
-        
+
     @property
     def dict_paths(self):
         return self.find_mdxes()
 
     @property
     def dirs(self):
-        return [self.ui.listWidgetFolders.item(i).text()
-                for i in range(self.ui.listWidgetFolders.count())]
+        return [
+            self.ui.listWidgetFolders.item(i).text()
+            for i in range(self.ui.listWidgetFolders.count())
+        ]

@@ -1,4 +1,4 @@
-#-*- coding:utf-8 -*-
+# -*- coding:utf-8 -*-
 #
 # Copyright © 2016–2017 Liang Feng <finalion@gmail.com>
 #
@@ -22,11 +22,13 @@ from functools import wraps
 from aqt.utils import showInfo
 from aqt.qt import QIcon
 
-__all__ = ['ignore_exception',
-           'get_model_byId',
-           'get_icon',
-           'get_ord_from_fldname',
-           'MapDict']
+__all__ = [
+    "ignore_exception",
+    "get_model_byId",
+    "get_icon",
+    "get_ord_from_fldname",
+    "MapDict",
+]
 
 
 def ignore_exception(func):
@@ -35,28 +37,29 @@ def ignore_exception(func):
         try:
             return func(*args, **kwargs)
         except:
-            return ''
+            return ""
+
     return wrap
 
 
 def get_model_byId(models, id):
     for m in list(models.all()):
         # showInfo(str(m['id']) + ', ' + m['name'])
-        if m['id'] == id:
+        if m["id"] == id:
             return m
 
 
 def get_ord_from_fldname(model, name):
-    flds = model['flds']
+    flds = model["flds"]
     for fld in flds:
-        if fld['name'] == name:
-            return fld['ord']
+        if fld["name"] == name:
+            return fld["ord"]
 
 
 def get_icon(filename):
     curdir = os.path.dirname(os.path.abspath(__file__))
     pardir = os.path.join(curdir, os.pardir)
-    path = os.path.join(pardir, 'resources', filename)
+    path = os.path.join(pardir, "resources", filename)
     return QIcon(path)
 
 

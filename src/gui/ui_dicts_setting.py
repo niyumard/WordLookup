@@ -8,6 +8,7 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
@@ -22,7 +23,9 @@ class Ui_Dialog(object):
         self.btnRemoveFolder = QtWidgets.QPushButton(Dialog)
         self.btnRemoveFolder.setObjectName("btnRemoveFolder")
         self.horizontalLayout.addWidget(self.btnRemoveFolder)
-        spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        spacerItem = QtWidgets.QSpacerItem(
+            40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum
+        )
         self.horizontalLayout.addItem(spacerItem)
         self.verticalLayout.addLayout(self.horizontalLayout)
         self.listWidgetFolders = QtWidgets.QListWidget(Dialog)
@@ -39,7 +42,9 @@ class Ui_Dialog(object):
         self.verticalLayout.addLayout(self.horizontalLayout_2)
         self.buttonBox = QtWidgets.QDialogButtonBox(Dialog)
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
-        self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Ok)
+        self.buttonBox.setStandardButtons(
+            QtWidgets.QDialogButtonBox.Cancel | QtWidgets.QDialogButtonBox.Ok
+        )
         self.buttonBox.setObjectName("buttonBox")
         self.verticalLayout.addWidget(self.buttonBox)
 
@@ -55,6 +60,7 @@ class Ui_Dialog(object):
         Dialog.setWindowTitle(_translate("Dialog", "Dicts Setting"))
         self.btnAddFolder.setText(_translate("Dialog", "Add Folder"))
         self.btnRemoveFolder.setText(_translate("Dialog", "Remove Folder"))
-        self.checkUseFilename.setText(_translate("Dialog", "Use filename as dict label"))
+        self.checkUseFilename.setText(
+            _translate("Dialog", "Use filename as dict label")
+        )
         self.checkExportMedia.setText(_translate("Dialog", "Export media files"))
-

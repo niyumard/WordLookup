@@ -14,12 +14,11 @@ from bs4 import BeautifulSoup, Tag
 
 from .base import WebService, export, register, with_styles
 
-filterwarnings('ignore')
+filterwarnings("ignore")
 
 
-@register(u'朗文')
+@register("朗文")
 class Longman(WebService):
-
     def __init__(self):
         super(Longman, self).__init__()
 
@@ -31,133 +30,156 @@ class Longman(WebService):
         """
 
         if not (self.cached(single_dict) and self.cache_result(single_dict)):
-            rsp = rq.get("https://www.ldoceonline.com/dictionary/{}".format(self.word), headers={
-                'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1623.0 Safari/537.36'
-            })
+            rsp = rq.get(
+                "https://www.ldoceonline.com/dictionary/{}".format(self.word),
+                headers={
+                    "User-Agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1623.0 Safari/537.36"
+                },
+            )
 
             if rsp.status_code == 200:
-                bs = BeautifulSoup(rsp.content.decode('utf-8'), 'html.parser')
+                bs = BeautifulSoup(rsp.content.decode("utf-8"), "html.parser")
                 # Top Container
-                dictlinks = bs.find_all('span', {'class': 'dictlink'})
+                dictlinks = bs.find_all("span", {"class": "dictlink"})
                 body_html = ""
 
-                word_info = {
-                }
-                ee_ = ''
+                word_info = {}
+                ee_ = ""
                 for dic_link in dictlinks:
                     assert isinstance(dic_link, Tag)
 
                     # Remove related Topics Container
-                    related_topic_tag = dic_link.find('div', {'class': "topics_container"})
+                    related_topic_tag = dic_link.find(
+                        "div", {"class": "topics_container"}
+                    )
                     if related_topic_tag:
                         related_topic_tag.decompose()
 
                     # Remove Tail
-                    tail_tag = dic_link.find("span", {'class': 'Tail'})
+                    tail_tag = dic_link.find("span", {"class": "Tail"})
                     if tail_tag:
                         tail_tag.decompose()
 
                     # Remove SubEntry
-                    sub_entries = dic_link.find_all('span', {'class': 'SubEntry'})
+                    sub_entries = dic_link.find_all("span", {"class": "SubEntry"})
                     for sub_entry in sub_entries:
                         sub_entry.decompose()
 
                     # word elements
-                    head_tag = dic_link.find('span', {'class': "Head"})
+                    head_tag = dic_link.find("span", {"class": "Head"})
                     if head_tag and not word_info:
                         try:
-                            hyphenation = head_tag.find("span", {'class': 'HYPHENATION'}).string  # Hyphenation
+                            hyphenation = head_tag.find(
+                                "span", {"class": "HYPHENATION"}
+                            ).string  # Hyphenation
                         except:
-                            hyphenation = ''
+                            hyphenation = ""
                         try:
                             pron_codes = "".join(
-                                list(head_tag.find("span", {'class': 'PronCodes'}).strings))  # Hyphenation
+                                list(
+                                    head_tag.find(
+                                        "span", {"class": "PronCodes"}
+                                    ).strings
+                                )
+                            )  # Hyphenation
                         except:
-                            pron_codes = ''
+                            pron_codes = ""
                         try:
-                            POS = head_tag.find("span", {'class': 'POS'}).string  # Hyphenation
+                            POS = head_tag.find(
+                                "span", {"class": "POS"}
+                            ).string  # Hyphenation
                         except:
-                            POS = ''
+                            POS = ""
 
                         try:
-                            Inflections = head_tag.find('span', {'class': 'Inflections'})
+                            Inflections = head_tag.find(
+                                "span", {"class": "Inflections"}
+                            )
                             if Inflections:
                                 Inflections = str(Inflections)
                             else:
-                                Inflections = ''
+                                Inflections = ""
                         except:
-                            Inflections = ''
+                            Inflections = ""
 
                         word_info = {
-                            'phonetic': pron_codes,
-                            'hyphenation': hyphenation,
-                            'pos': POS,
-                            'inflections': Inflections,
+                            "phonetic": pron_codes,
+                            "hyphenation": hyphenation,
+                            "pos": POS,
+                            "inflections": Inflections,
                         }
                         self.cache_this(word_info)
                     if head_tag:
                         head_tag.decompose()
 
                     # remove script tag
-                    script_tags = dic_link.find_all('script')
+                    script_tags = dic_link.find_all("script")
                     for t in script_tags:
                         t.decompose()
 
                     # remove img tag
-                    img_tags = dic_link.find_all('img')
+                    img_tags = dic_link.find_all("img")
                     for t in img_tags:
-                        self.cache_this({'img': 'https://www.ldoceonline.com' + t['src']})
+                        self.cache_this(
+                            {"img": "https://www.ldoceonline.com" + t["src"]}
+                        )
                         t.decompose()
 
                     # remove sound tag
-                    am_s_tag = dic_link.find("span", title='Play American pronunciation of {}'.format(self.word))
-                    br_s_tag = dic_link.find("span", title='Play British pronunciation of {}'.format(self.word))
+                    am_s_tag = dic_link.find(
+                        "span",
+                        title="Play American pronunciation of {}".format(self.word),
+                    )
+                    br_s_tag = dic_link.find(
+                        "span",
+                        title="Play British pronunciation of {}".format(self.word),
+                    )
                     if am_s_tag:
                         am_s_tag.decompose()
                     if br_s_tag:
                         br_s_tag.decompose()
 
                     # remove example sound tag
-                    emp_s_tags = dic_link.find_all('span', {'class': 'speaker exafile fa fa-volume-up'})
+                    emp_s_tags = dic_link.find_all(
+                        "span", {"class": "speaker exafile fa fa-volume-up"}
+                    )
                     for t in emp_s_tags:
                         t.decompose()
 
                     body_html += str(dic_link)
                     ee_ = body_html
-                self.cache_this({
-                    'ee': ee_
-                })
+                self.cache_this({"ee": ee_})
 
             else:
-                return ''
+                return ""
         return self.cache_result(single_dict)
 
-    @export(u'音标', 2)
+    @export("音标", 2)
     def phonetic(self):
-        return self._get_singledict('phonetic')
+        return self._get_singledict("phonetic")
 
-    @export(u'断字单词', 3)
+    @export("断字单词", 3)
     def hyphenation(self):
-        return self._get_singledict('hyphenation')
+        return self._get_singledict("hyphenation")
 
-    @export(u'词性', 1)
+    @export("词性", 1)
     def pos(self):
-        return self._get_singledict('pos')
+        return self._get_singledict("pos")
 
-    @export(u'英英解释', 0)
-    @with_styles(cssfile='_longman.css')
+    @export("英英解释", 0)
+    @with_styles(cssfile="_longman.css")
     def ee(self):
-        return self._get_singledict('ee')
+        return self._get_singledict("ee")
 
-    @export('图片', 4)
+    @export("图片", 4)
     def pic(self):
-        url = self._get_singledict('img')
-        filename = u'longman_img_{}'.format(os.path.basename(url))
+        url = self._get_singledict("img")
+        filename = "longman_img_{}".format(os.path.basename(url))
         if url and self.download(url, filename):
-            return self.get_anki_label(filename, 'img')
-        return ''
+            return self.get_anki_label(filename, "img")
+        return ""
 
-    @export(u'变形', 5)
-    @with_styles(cssfile='_longman.css')
+    @export("变形", 5)
+    @with_styles(cssfile="_longman.css")
     def inflections(self):
-        return self._get_singledict('inflections')
+        return self._get_singledict("inflections")

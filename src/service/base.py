@@ -19,6 +19,7 @@
 
 import inspect
 import os
+
 # use ntpath module to ensure the windows-style (e.g. '\\LDOCE.css')
 # path can be processed on Unix platform.
 # However, anki version on mac platforms doesn't including this package?
@@ -74,13 +75,13 @@ def export(label, index):
     return _with
 
 
-def copy_static_file(filename, new_filename=None, static_dir='static'):
+def copy_static_file(filename, new_filename=None, static_dir="static"):
     """
     copy file in static directory to media folder
     """
-    abspath = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                           static_dir,
-                           filename)
+    abspath = os.path.join(
+        os.path.dirname(os.path.realpath(__file__)), static_dir, filename
+    )
     shutil.copy(abspath, new_filename if new_filename else filename)
 
 
@@ -96,34 +97,39 @@ def with_styles(**styles):
         @wraps(fld_func)
         def _deco(cls, *args, **kwargs):
             res = fld_func(cls, *args, **kwargs)
-            cssfile, css, jsfile, js, need_wrap_css, class_wrapper = \
-                styles.get('cssfile', None), \
-                styles.get('css', None), \
-                styles.get('jsfile', None), \
-                styles.get('js', None), \
-                styles.get('need_wrap_css', False), \
-                styles.get('wrap_class', '')
+            cssfile, css, jsfile, js, need_wrap_css, class_wrapper = (
+                styles.get("cssfile", None),
+                styles.get("css", None),
+                styles.get("jsfile", None),
+                styles.get("js", None),
+                styles.get("need_wrap_css", False),
+                styles.get("wrap_class", ""),
+            )
 
             def wrap(html, css_obj, is_file=True):
                 # wrap css and html
                 if need_wrap_css and class_wrapper:
-                    html = u'<div class="{}">{}</div>'.format(
-                        class_wrapper, html)
-                    return html, wrap_css(css_obj, is_file=is_file, class_wrapper=class_wrapper)[0]
+                    html = '<div class="{}">{}</div>'.format(class_wrapper, html)
+                    return (
+                        html,
+                        wrap_css(css_obj, is_file=is_file, class_wrapper=class_wrapper)[
+                            0
+                        ],
+                    )
                 return html, css_obj
 
             if cssfile:
-                new_cssfile = cssfile if cssfile.startswith('_') \
-                    else u'_' + cssfile
+                new_cssfile = cssfile if cssfile.startswith("_") else "_" + cssfile
                 # copy the css file to media folder
                 copy_static_file(cssfile, new_cssfile)
                 # wrap the css file
                 res, new_cssfile = wrap(res, new_cssfile)
-                res = u'<link type="text/css" rel="stylesheet" href="{0}" />{1}'.format(
-                    new_cssfile, res)
+                res = '<link type="text/css" rel="stylesheet" href="{0}" />{1}'.format(
+                    new_cssfile, res
+                )
             if css:
                 res, css = wrap(res, css, is_file=False)
-                res = u'<style>{0}</style>{1}'.format(css, res)
+                res = "<style>{0}</style>{1}".format(css, res)
 
             if not isinstance(res, QueryResult):
                 return QueryResult(result=res, jsfile=jsfile, js=js)
@@ -137,12 +143,13 @@ def with_styles(**styles):
 
 
 class Service(object):
-    '''service base class'''
+    """service base class"""
 
     def __init__(self):
         self._exporters = self.get_exporters()
-        self._fields, self._actions = zip(*self._exporters) \
-            if self._exporters else (None, None)
+        self._fields, self._actions = (
+            zip(*self._exporters) if self._exporters else (None, None)
+        )
         # query interval: default 500ms
         self.query_interval = 0.5
 
@@ -162,7 +169,7 @@ class Service(object):
         flds = dict()
         methods = inspect.getmembers(self, predicate=inspect.ismethod)
         for method in methods:
-            export_attrs = getattr(method[1], '__export_attrs__', None)
+            export_attrs = getattr(method[1], "__export_attrs__", None)
             if export_attrs:
                 label, index = export_attrs
                 flds.update({int(index): (label, method[1])})
@@ -174,22 +181,37 @@ class Service(object):
         # if the service instance is LocalService,
         # then have to build then index.
         if isinstance(self, LocalService):
-            self.notify(MapDict(type='text', index=self.work_id,
-                                text=u'Building %s...' % self._filename))
+            self.notify(
+                MapDict(
+                    type="text",
+                    index=self.work_id,
+                    text="Building %s..." % self._filename,
+                )
+            )
             if isinstance(self, MdxService) or isinstance(self, StardictService):
                 self.builder.check_build()
 
         for each in self.exporters:
             if action_label == each[0]:
-                self.notify(MapDict(type='info', index=self.work_id,
-                                    service_name=self.title,
-                                    field_name=action_label,
-                                    flag=u'->'))
+                self.notify(
+                    MapDict(
+                        type="info",
+                        index=self.work_id,
+                        service_name=self.title,
+                        field_name=action_label,
+                        flag="->",
+                    )
+                )
                 result = each[1]()
-                self.notify(MapDict(type='info', index=self.work_id,
-                                    service_name=self.title,
-                                    field_name=action_label,
-                                    flag=u'√'))
+                self.notify(
+                    MapDict(
+                        type="info",
+                        index=self.work_id,
+                        service_name=self.title,
+                        field_name=action_label,
+                        flag="√",
+                    )
+                )
                 return result
         return QueryResult.default()
 
@@ -202,21 +224,22 @@ class Service(object):
 
     @staticmethod
     def get_anki_label(filename, type_):
-        formats = {'audio': u'[sound:{0}]',
-                   'img': u'<img src="{0}">',
-                   'video': u'<video controls="controls" width="100%" height="auto" src="{0}"></video>'}
+        formats = {
+            "audio": "[sound:{0}]",
+            "img": '<img src="{0}">',
+            "video": '<video controls="controls" width="100%" height="auto" src="{0}"></video>',
+        }
         return formats[type_].format(filename)
 
 
 class WebService(Service):
-    '''web service class'''
+    """web service class"""
 
     def __init__(self):
         super(WebService, self).__init__()
         self.cache = defaultdict(defaultdict)
         self._cookie = CookieJar()
-        self._opener = urllib2.build_opener(
-            urllib2.HTTPCookieProcessor(self._cookie))
+        self._opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(self._cookie))
         self.query_interval = 1
 
     def cache_this(self, result):
@@ -227,7 +250,7 @@ class WebService(Service):
         return (self.word in self.cache) and (key in self.cache[self.word])
 
     def cache_result(self, key):
-        return self.cache[self.word].get(key, u'')
+        return self.cache[self.word].get(key, "")
 
     @property
     def title(self):
@@ -238,20 +261,19 @@ class WebService(Service):
         return self.__class__.__name__
 
     def get_response(self, url, data=None, headers=None, timeout=10):
-        default_headers = {'User-Agent': 'Anki WordQuery',
-                           'Accept-Encoding': 'gzip'}
+        default_headers = {"User-Agent": "Anki WordQuery", "Accept-Encoding": "gzip"}
         if headers:
             default_headers.update(headers)
 
         request = urllib2.Request(url, headers=default_headers)
         try:
             response = self._opener.open(request, data=data, timeout=timeout)
-            data = response.read()    # return bytes
-            if response.info().get('Content-Encoding') == 'gzip':
-                data = zlib.decompress(data, 16 + zlib.MAX_WBITS)   # return bytes
-            return data.decode('utf-8')  # TODO: all data can be decoded by utf-8??
+            data = response.read()  # return bytes
+            if response.info().get("Content-Encoding") == "gzip":
+                data = zlib.decompress(data, 16 + zlib.MAX_WBITS)  # return bytes
+            return data.decode("utf-8")  # TODO: all data can be decoded by utf-8??
         except:
-            return ''
+            return ""
 
     @classmethod
     def download(cls, url, filename):
@@ -269,7 +291,6 @@ class WebService(Service):
 
 
 class LocalService(Service):
-
     def __init__(self, dict_path):
         super(LocalService, self).__init__()
         self.dict_path = dict_path
@@ -290,7 +311,6 @@ class LocalService(Service):
 
 
 class MdxService(LocalService):
-
     def __init__(self, dict_path):
         super(MdxService, self).__init__(dict_path)
         self.media_cache = defaultdict(set)
@@ -302,29 +322,33 @@ class MdxService(LocalService):
 
     @staticmethod
     def support(dict_path):
-        return os.path.isfile(dict_path) and dict_path.lower().endswith('.mdx')
+        return os.path.isfile(dict_path) and dict_path.lower().endswith(".mdx")
 
     @property
     def title(self):
-        if config.use_filename or not self.builder._title or self.builder._title.startswith('Title'):
+        if (
+            config.use_filename
+            or not self.builder._title
+            or self.builder._title.startswith("Title")
+        ):
             return self._filename
         else:
-            return self.builder.meta['title']
+            return self.builder.meta["title"]
 
-    @export(u"default", 0)
+    @export("default", 0)
     def fld_whole(self):
         html = self.get_html()
-        js = re.findall(r'<script.*?>.*?</script>', html, re.DOTALL)
-        return QueryResult(result=html, js=u'\n'.join(js))
+        js = re.findall(r"<script.*?>.*?</script>", html, re.DOTALL)
+        return QueryResult(result=html, js="\n".join(js))
 
     def get_html(self):
         if not self.cache[self.word]:
-            html = ''
+            html = ""
             result = self.builder.mdx_lookup(self.word)  # self.word: unicode
             if result:
-                if result[0].upper().find(u"@@@LINK=") > -1:
+                if result[0].upper().find("@@@LINK=") > -1:
                     # redirect to a new word behind the equal symol.
-                    self.word = result[0][len(u"@@@LINK="):].strip()
+                    self.word = result[0][len("@@@LINK=") :].strip()
                     return self.get_html()
                 else:
                     html = self.adapt_to_anki(result[0])
@@ -348,15 +372,13 @@ class MdxService(LocalService):
         if config.export_media:
             media_files_set.update(set(msound))
         for each in media_files_set:
-            html = html.replace(each, u'_' + each.split('/')[-1])
+            html = html.replace(each, "_" + each.split("/")[-1])
         # find sounds
-        p = re.compile(
-            r'<a[^>]+?href=\"(sound:_.*?\.(?:mp3|wav))\"[^>]*?>(.*?)</a>')
-        html = p.sub(u"[\\1]\\2", html)
+        p = re.compile(r"<a[^>]+?href=\"(sound:_.*?\.(?:mp3|wav))\"[^>]*?>(.*?)</a>")
+        html = p.sub("[\\1]\\2", html)
         self.save_media_files(media_files_set)
         for cssfile in mcss:
-            cssfile = '_' + \
-                      os.path.basename(cssfile.replace('\\', os.path.sep))
+            cssfile = "_" + os.path.basename(cssfile.replace("\\", os.path.sep))
             # if not exists the css file, the user can place the file to media
             # folder first, and it will also execute the wrap process to generate
             # the desired file.
@@ -365,19 +387,18 @@ class MdxService(LocalService):
             new_css_file, wrap_class_name = wrap_css(cssfile)
             html = html.replace(cssfile, new_css_file)
             # add global div to the result html
-            html = u'<div class="{0}">{1}</div>'.format(
-                wrap_class_name, html)
+            html = '<div class="{0}">{1}</div>'.format(wrap_class_name, html)
 
         return html
 
     def save_file(self, filepath_in_mdx, savepath=None):
-        basename = os.path.basename(filepath_in_mdx.replace('\\', os.path.sep))
+        basename = os.path.basename(filepath_in_mdx.replace("\\", os.path.sep))
         if savepath is None:
-            savepath = '_' + basename
+            savepath = "_" + basename
         try:
             bytes_list = self.builder.mdd_lookup(filepath_in_mdx)
             if bytes_list and not os.path.exists(savepath):
-                with open(savepath, 'wb') as f:
+                with open(savepath, "wb") as f:
                     f.write(bytes_list[0])
                     return savepath
         except sqlite3.OperationalError as e:
@@ -388,11 +409,12 @@ class MdxService(LocalService):
         get the necessary static files from local mdx dictionary
         ** kwargs: data = list
         """
-        diff = data.difference(self.media_cache['files'])
-        self.media_cache['files'].update(diff)
+        diff = data.difference(self.media_cache["files"])
+        self.media_cache["files"].update(diff)
         lst, errors = list(), list()
         wild = [
-            '*' + os.path.basename(each.replace('\\', os.path.sep)) for each in diff]
+            "*" + os.path.basename(each.replace("\\", os.path.sep)) for each in diff
+        ]
         try:
             for each in wild:
                 # TODO : refract get_mdd_keys method
@@ -409,7 +431,6 @@ class MdxService(LocalService):
 
 
 class StardictService(LocalService):
-
     def __init__(self, dict_path):
         super(StardictService, self).__init__(dict_path)
         self.query_interval = 0.05
@@ -418,22 +439,26 @@ class StardictService(LocalService):
 
     @staticmethod
     def support(dict_path):
-        return os.path.isfile(dict_path) and dict_path.lower().endswith('.ifo')
+        return os.path.isfile(dict_path) and dict_path.lower().endswith(".ifo")
 
     @property
     def title(self):
         if config.use_filename or not self.builder.ifo.bookname:
             return self._filename
         else:
-            return self.builder.ifo.bookname.decode('utf-8')
+            return self.builder.ifo.bookname.decode("utf-8")
 
-    @export(u"default", 0)
+    @export("default", 0)
     def fld_whole(self):
         self.builder.check_build()
         try:
             result = self.builder[self.word]
-            result = result.strip().replace('\r\n', '<br />') \
-                .replace('\r', '<br />').replace('\n', '<br />')
+            result = (
+                result.strip()
+                .replace("\r\n", "<br />")
+                .replace("\r", "<br />")
+                .replace("\n", "<br />")
+            )
             return QueryResult(result=result)
         except KeyError:
             return QueryResult.default()
@@ -445,8 +470,8 @@ class QueryResult(MapDict):
     def __init__(self, *args, **kwargs):
         super(QueryResult, self).__init__(*args, **kwargs)
         # avoid return None
-        if self['result'] == None:
-            self['result'] = ""
+        if self["result"] == None:
+            self["result"] = ""
 
     def set_styles(self, **kwargs):
         for key, value in kwargs.items():
